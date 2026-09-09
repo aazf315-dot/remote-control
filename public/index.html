@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم بالشاشة</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body { background: #111; color: #fff; text-align: center; font-family: sans-serif; margin: 0; padding: 20px; }
+    #screen { max-width: 100%; border: 2px solid #00f0ff; border-radius: 8px; cursor: pointer; margin-top: 15px; }
+  </style>
+</head>
+<body>
+  <h2>شاشة الجهاز المنقولة</h2>
+  <img id="screen" src="" alt="في انتظار بث الشاشة..." />
+
+  <script>
+    const socket = io();
+    const screenImg = document.getElementById('screen');
+
+    // استلام بث الصور وتحديث الشاشة
+    socket.on('screen-data', (base64Image) => {
+      screenImg.src = 'data:image/jpeg;base64,' + base64Image;
+    });
+
+    // التقاط إحداثيات الضغط بالماوس وإرسالها
+    screenImg.addEventListener('click', (e) => {
+      const rect = screenImg.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      socket.emit('touch-event', { x, y });
+    });
+  </script>
+</body>
+</html>
+
